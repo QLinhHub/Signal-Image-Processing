@@ -1,0 +1,304 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Created by:
+% Thien Nguyen
+% CEA Leti
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[12pt,final,hyperref={pdfpagelabels=false}]{beamer}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage[orientation=portrait,size=a1,scale=1.4]{beamerposter} % Use the beamerposter package for laying out the poster with a portrait orientation and an a0 paper size
+\usepackage{xcolor}
+\usetheme{I6pd2} % Use the I6pd2 theme suplied with this template
+%\usepackage{extsizes}
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage[document]{ragged2e}
+\usepackage{adjustbox}
+\usepackage{fancyhdr}
+\usepackage{amsmath,amsthm,amssymb,latexsym, subfig} % For including math equations, theorems, symbols, etc
+\theoremstyle{plain}
+
+%\usepackage{times}\usefonttheme{professionalfonts}  % Uncomment to use Times as the main font
+%\usefonttheme[onlymath]{serif} % Uncomment to use a Serif font within math environments
+
+\usepackage{booktabs} % Top and bottom rules for tables
+
+\graphicspath{{figures/}} % Location of the graphics files
+
+\usecaptiontemplate{\small\structure{\insertcaptionname~\insertcaptionnumber: }\insertcaption} % A fix for figure numbering
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION 
+%----------------------------------------------------------------------------------------
+
+\title{ \huge  Dématriçage des images  } % Poster title
+
+\author{Quang Linh LE -  Huynh Dung NGUYEN \\ Quoc Bao LE QUANG - Duc Trieu BUI - Thomas ZIMMERMANN } % Author(s)
+
+
+
+
+\institute{4A, Génie Industriel-INSA Centre Val de Loire } % Institution(s)
+
+
+
+%----------------------------------------------------------------------------------------
+%	FOOTER TEXT
+%----------------------------------------------------------------------------------------
+
+\newcommand{\leftfoot}{INSA Centre Val de Loire} % Left footer text
+
+\newcommand{\rightfoot}{Département Génie Industriel} % Right footer text
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\addtobeamertemplate{block end}{}{\vspace*{2ex}} % White space under blocks
+
+\begin{frame} % The whole poster is enclosed in one beamer frame
+
+\begin{columns}[t] % The whole poster consists of four major columns, each of which can be subdivided further with another \begin{columns} block - the [t] argument aligns each column's content to the top
+
+% --------------------------- BEGIN COLUMN 1 ----------------------------------------------
+\begin{column}{.32\textwidth} % The first column. Since there are 4 columns each col width must be less than 1/4 = .25 wide
+                
+    \begin{block}{Introduction}
+        \begin{itemize} 
+%\begin{minipage}{.75\textwidth}
+%item Les caméras utilisent souvent des filtres colorés de Bayer pour capturer des couleurs de la scène, l'image acquise est donc incomplète. L'objectif de Dématriçage est de faire une interpolation sur ces données manquantes pour avoir une image complète. 
+%\end{minipage}\hspace*{0.1cm}
+%\begin{minipage}{.19\textwidth}
+%\includegraphics[width=\linewidth]{CFA.png}
+%\end{minipage}
+\justifying
+	\item   Les caméras utilisent souvent des filtres colorés de Bayer pour capturer des couleurs de la scène, l'image acquise est donc incomplète. L'objectif de Dématriçage est de faire une interpolation sur ces données manquantes pour avoir une image complète. 
+            \item Dans l'état de l'art, on propose d'interpoler tout d'abord le canal vert grâce à sa qualité par rapport à celle des canaux rouge et bleu et aussi parce que le système visuel humain est plus sensible avec cette couleur. 
+
+            \item Dans le cadre de ce projet, nous intéressons sur deux schemes: méthode de Hamilton-Adams et méthode de L.Zhang. La première est simple tandis que la dernière conçoit un modèle de bruit d'interpolation, ajoutant aux analyses spectrales afin de trouver une reconstruction de haut qualité.
+            
+	 \item Nous comparons les deux méthodes en terme de qualité visuelle et quantitativement par métrics PSNR. Les résultats nous permettent de constater que l'algorithme de L.Zhang est beaucoup plus performante et c'est un excellent exemple qui montre l'avantage d'appliquer des techniques de traitement du signal dans d'autres domaines.
+
+
+        \end{itemize}
+    \end{block}
+    
+    \begin{block}{Dématriçage par méthode de Hamilton}
+        \begin{itemize}
+\justifying
+            \item   Dans \textit{Adaptive color plane interpolation in single sensor color electronic camera}, les auteurs Hamilton et Adams ont proposé de calculer les gradients horizontal et vertical, puis les comparer pour savoir quelle est la direction majeure des formes locales. 
+           \item Si le gradient horizontal est plus élevé, il est plus probable d'avoir un contour en vertical, il faut alors éviter d'interpoler à travers eux. On réalise une interpolation plutôt en horizontal. La décision est prise de la même manière avec les autres cas.
+	  \begin{figure}
+                \includegraphics[width=.91\linewidth]{figures/hamilton.png}
+            \end{figure}
+	
+\small Calculer le gradient horizontal 
+\begin{equation*}
+\Delta H = |G_4 - G_6| + |R_5 - R_3 + R_5 - R_7|
+\end{equation*}
+Calculer le gradient vertical
+\begin{equation*}
+\Delta V = |G_2 - G_8| + |R_5 - R_1 + R_5 - R_9|
+\end{equation*}
+Si $\Delta H > \Delta V$ alors $G_5 = G_{5V}$ avec
+          \begin{equation*}
+	G_{5H} = \frac{G_2 + G_8}{2}+ \frac{R_5 - R_1 + R_5 - R_9}{4}
+	\end{equation*}
+         Si $\Delta H < \Delta V$ alors $G_5 = G_{5H}$ avec
+       	\begin{equation*}
+	G_{5H} = \frac{G_4 + G_6}{2}+ \frac{R_5 - R_3 + R_5 - R_7}{4}
+	\end{equation*}
+         Sinon: 
+	\begin{equation*}
+	G_5 = \frac{G_{5H} + G_{5V}}{2}
+	\end{equation*}
+
+\par
+
+            \item  La reconstruction des composantes manquantes en canal rouge et canal bleu est réalisée par méthode des teintes constantes. Cela augmente la "synchronisation" des éléments en hautes fréquences et donc améliore la qualité des plans rouge et bleu.
+            
+            \begin{figure}
+                \includegraphics[width=.91\linewidth]{figures/teint.png}
+            \end{figure}
+       
+        \end{itemize}
+    \end{block}
+
+\end{column} % End of the first column
+ 
+% --------------------------- BEGIN COLUMN 2 ----------------------------------------------
+\begin{column}{.32\textwidth} % The second column   
+    \begin{block}{Méthode de Zhang-Canal vert}
+        \begin{itemize}
+\justifying
+             \item  En 2005, L. Zhang et X. Wu présentent une nouvelle méthode de dématriçage en utilisant l'estimation directionnelle de l'erreur quadratique moyenne minimale linéaire (LMMSE).
+            
+            \begin{figure}
+                \includegraphics[width=.9\linewidth]{zhang.png}
+            \end{figure}
+            \item  \textbf{Interpolations horizontale et verticale}: Pour chacun des canaux, calculons une interpolation horizontale et une interpolation verticale selon la démarche de Hamilton-Adams
+	 \item \textbf{Signal Différence} 
+	 \begin{figure}
+                \includegraphics[width=.9\linewidth]{signal_diff.png}
+            \end{figure}
+            \item \textbf{Débruitage 1D} 
+\begin{enumerate}
+	\item \textbf{Modélisation} Signal différence $D_H$ est dégradé par un bruit $\epsilon$ de moyenner nulle et n'est pas corrélé avec le signal non bruité $ \hat{D}_H$. Chaque ligne de  $D_H$ est un signal $y$ bruité modélisé par  
+\begin{equation*}
+   y =  x + \epsilon
+\end{equation*}
+On construit un modèle linéaire pour estimer $\textbf{x}$ à partir de $\textbf{y}$ 
+\begin{equation*}
+a, b =  arg min_{a,b} \quad J = \mathbb{E} {||a\textbf{y} + b - \textbf{x}||_2}^2
+\end{equation*}  
+En développant les dérivées partielles de cette fonction par rapport à $a$ et $b$ on obtient la LMMSE 
+\begin{equation*}
+\hat{\textbf{x}} = \mathbb{E}[\textbf{x}] + \frac{Cov(\textbf{x} \mbox{,} \textbf{y})}{Var(\textbf{y})} (\textbf{y} - \mathbb{E}[\textbf{y}])
+\label{eq: lmmse}
+\end{equation*} 
+\item \textbf{Analyses fréquentielles} des composantes $x$ et $\epsilon$: un filtre gaussien passe-bas est utilisé pour éliminer le bruit afin d'obtenir un signal moins bruité $\textbf{y}_s$ \\
+ \begin{figure}
+                \includegraphics[width=.7\linewidth]{lmmse.png}
+            \end{figure}
+Estimation des paramètres du modèle linéaire minimum: 
+\begin{equation*}
+ \mathbb{E}[\textbf{x}] = \mathbb{E} [\textbf{Y}_s]
+\end{equation*}
+
+\begin{equation*}
+Cov(\textbf{x} \mbox{,} \textbf{y}) = \mathbb{E} [\textbf{Y}_s -  \mathbb{E}[\textbf{x}]]^2
+\end{equation*}
+
+\begin{equation*}
+{\sigma^2}_{v} = \mathbb{E} [\textbf{Y}_s -  \textbf{Y} ]^2
+\end{equation*}
+
+Ayant $\hat{\textbf{x}}$, nous pouvons calculer l'erreur de cette estimation 
+\begin{equation*}
+{\sigma^2}_{\tilde{x}} =  {\sigma^2}_x -  \frac{{\sigma^2}_x}{{\sigma^2}_x + {\sigma^2}_v}
+\label{eq:errors}
+\end{equation*} 
+
+\end{enumerate}
+        
+ \item \textbf{Fusion les deux signaux}
+ Pour chaque position rouge(bleue), nous avons deux estimations horizontale et verticale. Il faut trouver donc une fusion optimale minimisant l'erreur finale  $\hat{\textbf{x}}_w(n) =  w_h\hat{\textbf{x}}_h(n) + w_n\hat{\textbf{x}}_v(n)$ avec $w_h + w_v = 1$
+
+Les poids $w_h$ et $w_v$ sont trouvés pour minimiser l'erreur finale
+\begin{equation*}
+\begin{gathered}
+w_h = \frac{{\sigma^2}_{x_v}(n)}{{\sigma^2}_{x_h}(n) + {\sigma^2}_{x_v}(n)}  \\
+w_v = \frac{{\sigma^2}_{x_h}(n)}{{\sigma^2}_{x_h}(n) + {\sigma^2}_{x_v}(n)}
+\end{gathered}
+\label{eq: weight}
+\end{equation*}   
+
+\item Combinaison des estimations au plan vert \\
+\begin{figure}
+                \includegraphics[width=0.9\linewidth]{add.png}
+            \end{figure}
+\end{itemize}
+    \end{block}
+
+
+    
+\end{column} % End of the second column
+
+% --------------------------- BEGIN COLUMN 3 ----------------------------------------------
+\begin{column}{.32\textwidth} % The Third column
+    \begin{block}{Méthode de Zhang-Canaux rouge et bleu}
+\begin{itemize}
+\item Interpolation des composantes rouges (bleues) aux positions bleues (rouges)
+        \begin{figure}
+        \includegraphics[width=0.775\linewidth]{R_at_B.png}
+        \end{figure}
+\item Interpolation des composantes rouges (bleues) aux positions vertes
+        \begin{figure}
+        \includegraphics[width=0.775\linewidth]{R_at_G.png}
+        \end{figure}
+
+\end{itemize}
+    \end{block}
+    \begin{block}{Expériences et Résultats}
+
+ \begin{figure}
+    \centering
+    \subfloat[Image Kodak19 bayerisée.]{{\includegraphics[width=5.3cm]{kodak19_mosaic.png} }}%
+    \quad
+    \subfloat[Dématriçage Hamilton-Adams]{{\includegraphics[width=5.3cm]{kodak19_ham.png} }}%
+    \quad
+    \subfloat[Dématriçage Zhang]{{\includegraphics[width=5.3cm]{kodak19_zhang.png} }}%
+    \quad
+    \label{fig:zhang_denoise}%
+\end{figure}   
+
+ \begin{figure}
+    \centering
+    \subfloat[Image Barbara bayerisée.]{{\includegraphics[width=5.3cm]{barbara_mosaic.png} }}%
+    \quad
+    \subfloat[Dématriçage Hamilton-Adams]{{\includegraphics[width=5.3cm]{barbara_ham.png} }}%
+    \quad
+    \subfloat[Dématriçage Zhang]{{\includegraphics[width=5.3cm]{barbara_zhang.png} }}%
+    \quad
+    \label{fig:zhang_denoise}%
+\end{figure}   
+
+ \begin{figure}
+    \centering
+    \subfloat[Image Goldhill bayerisée.]{{\includegraphics[width=5.3cm]{hill_mosaic.png} }}%
+    \quad
+    \subfloat[Dématriçage Hamilton-Adams]{{\includegraphics[width=5.3cm]{hill_ham.png} }}%
+    \quad
+    \subfloat[Dématriçage Zhang]{{\includegraphics[width=5.3cm]{hill_zhang.png} }}%
+    \quad
+    \label{fig:zhang_denoise}%
+\end{figure}   
+
+\begin{table}
+\caption{PSNR (en dB) des méthodes de dématriçage}
+\begin{adjustbox}{width=\columnwidth, center}
+\centering
+\begin{tabular}{c c c c c c c c c}
+\hline
+Méthode &  \multicolumn{4}{c|}{Hamilton-Adams} & \multicolumn{4}{c|}{Zhang}\\ 
+Canal               &  Rouge & Vert & Bleu & Image entière & Rouge & Vert & Bleu & Image entière \\
+\hline
+Kodak19  & 34.60 & 35.29 & 34.65 & 34.78 & 37.21 & 40.40 & 37.58 & 37.95 \\
+\hline
+Barbara   & 30.45 & 31.96 & 30.46 & 30.79 & 36.34 & 41.98 & 37.99 & 37.88 \\
+\hline
+Goldhill & 30.59 & 34.38 & 32.40 & 31.98 & 31.26 & 35.23 & 33.57 & 32.84  \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\label{Tab:boost}
+\end{table}
+ 
+
+
+    \end{block}
+
+ \begin{block}{Conclusion}
+\justifying
+ \begin{itemize}
+ \item La méthode avancée de Zhang permet produire toujours des images de la qualité plus haute par rapport à celles issue par méthode Hamilton-Adams à la fois en terme de la visuelle qualité et en cohérence globale (PSNR). 
+\item  La méthode de Zhang peut être considérée comme un exemple classique d'appliquer les techniques de traitement du signal 1D dans le domaine 2D des images. Parmi les techniques utilisées, nous pouvons citer: la modélisation des bruits d'interpolation, analyse fréquentielle des signaux afin de trouver un filtrage approprié. Ces méthodes permettent également d'estimer effectivement des paramètres optimale lors du modèle linéaire et de la fusion les deux interpolations.
+
+\end{itemize}
+    \end{block}
+
+\end{column} % End of the Third column
+
+
+\end{columns} % End of all the columns in the poster
+\end{frame} % End of the enclosing frame
+
+\end{document}
